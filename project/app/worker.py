@@ -1,11 +1,28 @@
-from raven import Client
+import os
+from celery import Celery
+from celery.utils.log import get_task_logger
+from celery.schedules import crontab
+from .config import settings
 
-from app.core.celery_app import celery_app
-from app.core.config import settings
+celery_log = get_task_logger(__name__)
 
-client_sentry = Client(settings.SENTRY_DSN)
+app = Celery(
+    'qwerty',
+    broker=settings.celery_broker,
+    backend=settings.celery_backend,
+    # include=['tasks']
+)
 
+app.conf.beat_schedule = {
+    'default_task_event': {
+        'task': 'default',
+        'schedule': settings.celery_default_task_time_interval,
+        'args': (),
+    },
+}
+app.conf.timezone = 'UTC'
 
-@celery_app.task(acks_late=True)
-def test_celery(word: str) -> str:
-    return f"test task return {word}"
+@app.task(name='default')
+def get_rate() -> bool:
+
+    return True

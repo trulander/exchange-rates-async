@@ -1,16 +1,21 @@
 import json
 from typing import Any, Union, Dict
+import aiohttp
 
-import requests
-from requests import Response
-
-from django.conf import settings
 
 from Core.Exceptions.exceprions import IncorrectResponseData, InvalidateSerializerData
 from services.serializers import CurrencyRatesSerializer, CurrenciesSerializer
 
 
+
+
+
+from interfaces import DataAccessInterface
+
 class RequestCurrencyService():
+    def __init__(self,
+                 data_access: DataAccessInterface,):
+
 
     def request(self, id: int) -> Union[Dict, None]:
         url: str = settings.URL_API_GET_ACTUALL_CURRENCY
