@@ -3,24 +3,61 @@ version: '3.8'
 services:
 
   web:
+    container_name: exchange_api
     build: ./project
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     volumes:
-      - ./project:/usr/src/app
+      - ./project:/usr/src/project/
     ports:
-      - 8004:8000
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
+      - 8000:8000
     depends_on:
+      - redis
       - db
 
   db:
-    image: postgres:13.4
+    image: postgres
+    container_name: exchange_postgres
+    restart: always
+    volumes:
+      - postgre_bd:/var/lib/postgresql/data
     expose:
       - 5432
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=foo
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=dev
+      - POSTGRES_DB=dev
+
+  redis:
+    image: redis
+    container_name: exchange_redis
+    volumes:
+      - redis:/usr/local/etc/redis
+      - redis-data:/data
+    ports:
+      - 6379:6379
+
+  celery:
+    container_name: exchange_celery_worker
+    build: ./project
+    command: celery -A app.worker worker -l INFO --pool=solo
+    volumes:
+      - ./project:/usr/src/project/
+    depends_on:
+      - redis
+
+
+  celery-beat:
+    container_name: exchange_celery-beat
+    build: ./project
+    command: celery -A app.worker beat -l INFO
+    volumes:
+      - ./project:/usr/src/project/
+    depends_on:
+      - redis
+
+volumes:
+  redis:
+  redis-data:
+  postgre_bd:

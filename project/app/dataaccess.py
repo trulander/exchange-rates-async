@@ -1,10 +1,11 @@
 from app.models import CurrencyRatesCreate, CurrenciesCreate, CurrencyRates, Currencies
-from interfaces import DataAccessInterface
+from app.interfaces import DataAccessInterface
 from app.db import async_session
+
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from  sqlalchemy.dialects.postgresql import Insert
+from sqlalchemy.dialects.postgresql import Insert
 
 class DataAccess(DataAccessInterface):
     _db_session: AsyncSession

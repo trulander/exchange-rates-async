@@ -1,8 +1,8 @@
 from fastapi import Depends, FastAPI
 
 from app.models import CurrencyRates, CurrencyRatesCreate
-from businesslogic import RequestCurrencyService
-from dataaccess import DataAccess
+from app.businesslogic import RequestCurrencyService
+from app.dataaccess import DataAccess
 
 app = FastAPI()
 service_request = lambda : RequestCurrencyService(data_access=DataAccess())
