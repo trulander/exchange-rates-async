@@ -1,38 +1,39 @@
+import datetime
 import json
 from typing import Any, Union, Dict
 import aiohttp
+from fastapi import Depends
 
-
-from Core.Exceptions.exceprions import IncorrectResponseData, InvalidateSerializerData
-from services.serializers import CurrencyRatesSerializer, CurrenciesSerializer
-
-
-
-
-
+from app.dataaccess import DataAccess
+from app.exceptions import IncorrectResponseData, InvalidateSerializerData
 from interfaces import DataAccessInterface
+from config import settings
+from app.models import CurrenciesCreate, CurrencyRatesCreate
 
 class RequestCurrencyService():
+    _data_access: DataAccessInterface
+
     def __init__(self,
-                 data_access: DataAccessInterface,):
+                 data_access: DataAccessInterface):
+        self._data_access = data_access
 
-
-    def request(self, id: int) -> Union[Dict, None]:
-        url: str = settings.URL_API_GET_ACTUALL_CURRENCY
-        api_key: dict = settings.API_KEY
+    async def request(self, id: int) -> Union[CurrencyRatesCreate, None]:
+        url: str = settings.url_api_foreign_service_rates
+        api_key: dict = settings.api_key_service_rates
         params: dict = {
             **api_key,
             'id': id
         }
 
-        result: Response = requests.get(url=url, params=params)
-        if result.status_code == 200:
-            decoded_data = self._json_request_decode(data_json=result.json(), id=id)
-            return self._save_data(decoded_data)
-
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=url, params=params) as request:
+                if request.status == 200:
+                    result = await request.json()
+                    decoded_data = await self._json_request_decode(data_json=result, id=id)
+                    return await self._save_data(decoded_data)
         return None
 
-    def _json_request_decode(self, data_json: json, id: int) -> dict[str, dict[str, Union[int, Any]]]:
+    async def _json_request_decode(self, data_json: json, id: int) -> dict[str, dict[str, Union[int, Any]]]:
         try:
             result = {
                 'currency': {
@@ -55,16 +56,25 @@ class RequestCurrencyService():
 
         return result
 
-    def _save_data(self, data: dict[str, dict[str, Union[int, Any]]]) -> json:
-        currency_serializer = CurrenciesSerializer(data=data['currency'])
-        currency_rate_serializer = CurrencyRatesSerializer(data=data['currency_rate'])
+    async def _save_data(self, data: dict[str, dict[str, Union[int, Any]]]) -> CurrencyRatesCreate:
 
-        if currency_serializer.is_valid():
-            currency_serializer.save()
+        new_curency = CurrenciesCreate(
+            id = data['currency']['id'],
+            name = data['currency']['name'],
+            slug = data['currency']['slug'],
+            symbol = data['currency']['symbol']
+        )
 
-        if currency_rate_serializer.is_valid():
-            currency_rate_serializer.save()
-        else:
-            raise InvalidateSerializerData(currency_rate_serializer.errors)
+        new_curency_rate = CurrencyRatesCreate(
+            currency = new_curency.id,
+            date_added = datetime.datetime.now(),
+            actual_date = data['currency_rate']['actual_date'],
+            price_usd = data['currency_rate']['price_usd'],
+            percent_change_1h = data['currency_rate']['percent_change_1h'],
+            percent_change_24h = data['currency_rate']['percent_change_24h']
+        )
 
-        return currency_rate_serializer.data
+        await self._data_access.async_create_currency(new_curency)
+        await self._data_access.async_create_currency_rate(new_curency_rate)
+
+        return new_curency_rate

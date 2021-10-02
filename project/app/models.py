@@ -6,6 +6,7 @@ from sqlmodel import SQLModel, Field
 
 
 class CurrenciesBase(SQLModel):
+    id: int
     name: str
     slug: str
     symbol: str
