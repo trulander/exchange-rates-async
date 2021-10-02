@@ -28,4 +28,4 @@ async def async_get_session() -> AsyncSession:
 async_session_factory = sessionmaker(engine, class_=AsyncSession)
 AsyncSession = async_scoped_session(async_session_factory, scopefunc=current_task)
 
-some_async_session = AsyncSession()
+async_session = AsyncSession()

@@ -2,7 +2,8 @@ import os
 from celery import Celery
 from celery.utils.log import get_task_logger
 from celery.schedules import crontab
-from .config import settings
+from app.config import settings
+from requests import Response, get
 
 celery_log = get_task_logger(__name__)
 
@@ -24,5 +25,8 @@ app.conf.timezone = 'UTC'
 
 @app.task(name='default')
 def get_rate() -> bool:
-
-    return True
+    result: Response = get(url=settings.url_to_endpoint_for_worker)
+    print(result.status_code)
+    if result.status_code == 200:
+        return True
+    return False

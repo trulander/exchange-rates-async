@@ -1,11 +1,9 @@
 import datetime
 import json
-from typing import Any, Union, Dict
+from typing import Any, Union
 import aiohttp
-from fastapi import Depends
 
-from app.dataaccess import DataAccess
-from app.exceptions import IncorrectResponseData, InvalidateSerializerData
+from app.exceptions import IncorrectResponseData
 from interfaces import DataAccessInterface
 from config import settings
 from app.models import CurrenciesCreate, CurrencyRatesCreate
@@ -13,11 +11,16 @@ from app.models import CurrenciesCreate, CurrencyRatesCreate
 class RequestCurrencyService():
     _data_access: DataAccessInterface
 
-    def __init__(self,
-                 data_access: DataAccessInterface):
+    def __init__(self, data_access: DataAccessInterface):
         self._data_access = data_access
 
-    async def request(self, id: int) -> Union[CurrencyRatesCreate, None]:
+    async def get_last_rate(self):
+        return await self._data_access.async_get_last_currency_rate()
+
+    async def get_list_rates(self):
+        return await self._data_access.async_get_list_currency_rates()
+
+    async def get_latest_rate(self, id: int) -> Union[CurrencyRatesCreate, None]:
         url: str = settings.url_api_foreign_service_rates
         api_key: dict = settings.api_key_service_rates
         params: dict = {

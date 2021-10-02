@@ -1,8 +1,6 @@
-import asyncio
-
 from app.models import CurrencyRatesCreate, CurrenciesCreate, CurrencyRates, Currencies
 from interfaces import DataAccessInterface
-from app.db import async_get_session, some_async_session
+from app.db import async_session
 from sqlalchemy.future import select
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +10,7 @@ class DataAccess(DataAccessInterface):
     _db_session: AsyncSession
 
     def __init__(self):
-        self._db_session = some_async_session
+        self._db_session = async_session
 
     async def async_create_currency(self, model: CurrenciesCreate) -> CurrenciesCreate:
         await self._db_session.execute(Insert(Currencies).values({
