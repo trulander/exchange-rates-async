@@ -19,7 +19,7 @@ The project based on the task:
 
 ```sh
     git clone https://github.com/trulander/exchange-rates-async.git
-    cd exchange-rates
+    cd exchange-rates-async
     docker-compose up -d --build
     docker-compose exec web alembic upgrade head
 ```
