@@ -44,6 +44,6 @@ At this link you can see documentation about the project API in swagger format
 ```shell
  uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
  celery -A app.worker worker -l info --pool=solo
- celery -A app.tasks beat --loglevel=info
+ celery -A app.worker beat -l info
 
 ```
