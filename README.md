@@ -1,6 +1,6 @@
 # Exchange rates async version
 
-Test project that uses FastAPI, async SQLAlchemy, SQLModel, Postgres, Alembic, Docker, Redis and Celery. <br>
+Test project that uses FastAPI, iohttp, async SQLAlchemy, SQLModel, Postgres, Alembic, Docker, Redis and Celery. <br>
 First realisation with django + celery at the link [https://github.com/trulander/exchange-rates](https://github.com/trulander/exchange-rates)
 
 The project based on the task:
