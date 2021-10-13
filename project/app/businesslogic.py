@@ -6,7 +6,7 @@ import aiohttp
 from app.exceptions import IncorrectResponseData
 from app.interfaces import DataAccessInterface
 from app.config import settings
-from app.models import CurrenciesCreate, CurrencyRatesCreate, CurrencyRates
+from app.models import CurrencyCreate, CurrencyRateCreate, CurrencyRate
 
 
 class RequestCurrencyService():
@@ -15,13 +15,13 @@ class RequestCurrencyService():
     def __init__(self, data_access: DataAccessInterface):
         self._data_access = data_access
 
-    async def get_last_rate(self) -> Union[CurrencyRates, None]:
+    async def get_last_rate(self) -> Union[CurrencyRate, None]:
         return await self._data_access.async_get_last_currency_rate()
 
-    async def get_list_rates(self) -> Union[list[CurrencyRates], None]:
+    async def get_list_rates(self) -> Union[list[CurrencyRate], None]:
         return await self._data_access.async_get_list_currency_rates()
 
-    async def get_latest_rate(self, id: int) -> Union[CurrencyRatesCreate, None]:
+    async def get_latest_rate(self, id: int) -> Union[CurrencyRateCreate, None]:
         url: str = settings.url_api_foreign_service_rates
         api_key: dict = settings.api_key_service_rates
         params: dict = {
@@ -60,16 +60,16 @@ class RequestCurrencyService():
 
         return result
 
-    async def _save_data(self, data: dict[str, dict[str, Union[int, Any]]]) -> CurrencyRatesCreate:
+    async def _save_data(self, data: dict[str, dict[str, Union[int, Any]]]) -> CurrencyRateCreate:
 
-        new_curency = CurrenciesCreate(
+        new_curency = CurrencyCreate(
             id = data['currency']['id'],
             name = data['currency']['name'],
             slug = data['currency']['slug'],
             symbol = data['currency']['symbol']
         )
 
-        new_curency_rate = CurrencyRatesCreate(
+        new_curency_rate = CurrencyRateCreate(
             currency = new_curency.id,
             date_added = datetime.datetime.now(),
             actual_date = data['currency_rate']['actual_date'],

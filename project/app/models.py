@@ -5,22 +5,22 @@ from typing import Optional
 from sqlmodel import SQLModel, Field
 
 
-class CurrenciesBase(SQLModel):
+class CurrencyBase(SQLModel):
     id: int
     name: str
     slug: str
     symbol: str
 
 
-class Currencies(CurrenciesBase, table=True):
+class Currency(CurrencyBase, table=True):
     id: int = Field(default=None, primary_key=True)
 
 
-class CurrenciesCreate(CurrenciesBase):
+class CurrencyCreate(CurrencyBase):
     pass
 
 
-class CurrencyRatesBase(SQLModel):
+class CurrencyRateBase(SQLModel):
     currency: Optional[int]
     date_added: datetime
     actual_date: datetime
@@ -29,10 +29,10 @@ class CurrencyRatesBase(SQLModel):
     percent_change_24h: float
 
 
-class CurrencyRates(CurrencyRatesBase, table=True):
+class CurrencyRate(CurrencyRateBase, table=True):
     id: int = Field(default=None, primary_key=True)
-    currency: Optional[int] = Field(default=None, foreign_key='currencies.id')
+    currency: Optional[int] = Field(default=None, foreign_key='currency.id')
 
 
-class CurrencyRatesCreate(CurrencyRatesBase):
+class CurrencyRateCreate(CurrencyRateBase):
     pass

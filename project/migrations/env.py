@@ -9,7 +9,7 @@ from sqlmodel import SQLModel
 from alembic import context
 from app.config import settings
 
-from app.models import Currencies, CurrencyRates
+from app.models import Currency, CurrencyRate
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

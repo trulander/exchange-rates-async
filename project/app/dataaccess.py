@@ -1,4 +1,4 @@
-from app.models import CurrencyRatesCreate, CurrenciesCreate, CurrencyRates, Currencies
+from app.models import CurrencyRateCreate, CurrencyCreate, CurrencyRate, Currency
 from app.interfaces import DataAccessInterface
 from app.db import async_session
 
@@ -13,8 +13,8 @@ class DataAccess(DataAccessInterface):
     def __init__(self):
         self._db_session = async_session
 
-    async def async_create_currency(self, model: CurrenciesCreate) -> CurrenciesCreate:
-        await self._db_session.execute(Insert(Currencies).values({
+    async def async_create_currency(self, model: CurrencyCreate) -> CurrencyCreate:
+        await self._db_session.execute(Insert(Currency).values({
                 "id": model.id,
                 "name": model.name,
                 "slug": model.slug,
@@ -23,16 +23,16 @@ class DataAccess(DataAccessInterface):
         await self._db_session.commit()
         return model
 
-    # async def async_get_currency_by_id(self, model: CurrenciesCreate) -> bool:
+    # async def async_get_currency_by_id(self, model: CurrencyCreate) -> bool:
     #     pass
     #
-    # async def async_get_list_currencies(self, model: CurrenciesCreate) -> bool:
+    # async def async_get_list_currencies(self, model: CurrencyCreate) -> bool:
     #     pass
 
 
 
-    async def async_create_currency_rate(self, model: CurrencyRatesCreate) -> CurrencyRates:
-        currency_rate = CurrencyRates(
+    async def async_create_currency_rate(self, model: CurrencyRateCreate) -> CurrencyRate:
+        currency_rate = CurrencyRate(
             currency = model.currency,
             date_added = model.date_added.replace(tzinfo=None),
             actual_date = model.actual_date.replace(tzinfo=None),
@@ -45,14 +45,14 @@ class DataAccess(DataAccessInterface):
         await self._db_session.refresh(currency_rate)
         return currency_rate
 
-    async def async_get_last_currency_rate(self) -> CurrencyRates:
-        request = await self._db_session.execute(select(CurrencyRates).order_by(desc(CurrencyRates.id)))
+    async def async_get_last_currency_rate(self) -> CurrencyRate:
+        request = await self._db_session.execute(select(CurrencyRate).order_by(desc(CurrencyRate.id)))
         result = request.scalars().first()
         return result
 
-    async def async_get_list_currency_rates(self) -> list[CurrencyRates]:
-        result = await self._db_session.execute(select(CurrencyRates))
-        currency_rates: list[CurrencyRates] = result.scalars().all()
+    async def async_get_list_currency_rates(self) -> list[CurrencyRate]:
+        result = await self._db_session.execute(select(CurrencyRate))
+        currency_rates: list[CurrencyRate] = result.scalars().all()
         return [rate for rate in currency_rates]
 
 
